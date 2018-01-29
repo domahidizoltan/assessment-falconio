@@ -18,10 +18,10 @@ public class MessageService {
         this.clock = clock;
     }
 
-    public void save(String content) {
+    public Message save(String content) {
         Assert.hasLength(content, "Message content must not be null or empty!");
         Message message = toMessage(content);
-        messageRepository.save(message);
+        return messageRepository.save(message);
     }
 
     public Optional<Message> getById(String id) {

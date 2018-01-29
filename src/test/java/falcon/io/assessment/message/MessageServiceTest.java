@@ -3,7 +3,6 @@ package falcon.io.assessment.message;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -11,31 +10,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static falcon.io.assessment.helper.MessageHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 public class MessageServiceTest {
-
-    private static final String ANY_ID = "1";
-    private static final String ANY_CONTENT = "any content";
-    private static final Instant NOW = Instant.now();
 
     @Mock
     private MessageRepository messageRepositoryMock;
 
     @Mock
     private Clock clockMock;
-
-    ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
 
     private MessageService messageService;
 
@@ -47,11 +38,13 @@ public class MessageServiceTest {
 
     @Test
     public void shouldSaveMessageWithCurrentTime() {
-        messageService.save(ANY_CONTENT);
+        Message newMessage = makeMessage(null, ANY_CONTENT);
+        Message savedMessage = makeMessage(ANY_ID, ANY_CONTENT);
+        given(messageRepositoryMock.save(eq(newMessage))).willReturn(savedMessage);
 
-        verify(messageRepositoryMock, times(1)).save(messageCaptor.capture());
-        Message expectedMessage = messageCaptor.getValue();
-        assertMessageOfAnyId(expectedMessage, ANY_CONTENT);
+        Message expectedMessage = messageService.save(ANY_CONTENT);
+
+        assertMessage(expectedMessage, ANY_ID, ANY_CONTENT);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -67,8 +60,8 @@ public class MessageServiceTest {
 
     @Test
     public void shouldGetMessageById() {
-        Message anyMessage = makeMessage(ANY_ID, ANY_CONTENT);
-        given(messageRepositoryMock.findById(eq(ANY_ID))).willReturn(Optional.of(anyMessage));
+        given(messageRepositoryMock.findById(eq(ANY_ID)))
+            .willReturn(Optional.of(ANY_MESSAGE));
 
         Optional<Message> expectedMessage = messageService.getById(ANY_ID);
         assertMessage(expectedMessage.get(), ANY_ID, ANY_CONTENT);
@@ -115,19 +108,6 @@ public class MessageServiceTest {
         assertMessage(expectedMessages.getContent().get(0), "3", ANY_CONTENT + "3");
     }
 
-    private Message makeMessage(String id, String content) {
-        return Message.builder()
-            .id(id)
-            .content(content)
-            .createTime(NOW)
-            .build();
-    }
-
-    private void assertMessageOfAnyId(Message message, String content) {
-        assertEquals(message.getContent(), content);
-        assertEquals(message.getCreateTime(), NOW);
-    }
-
     private void assertMessage(Message message, String id, String content) {
         assertEquals(message.getId(), id);
         assertEquals(message.getContent(), content);
@@ -136,8 +116,8 @@ public class MessageServiceTest {
 
     private PageRequest prepareRepoForPage(List<Message> pageResult, int page) {
         PageRequest pageRequest = PageRequest.of(page, 2);
-        PageImpl<Message> messagePa = new PageImpl<>(pageResult, pageRequest, 3);
-        given(messageRepositoryMock.findAll(pageRequest)).willReturn(messagePa);
+        PageImpl<Message> messagePage = new PageImpl<>(pageResult, pageRequest, 3);
+        given(messageRepositoryMock.findAll(pageRequest)).willReturn(messagePage);
         return pageRequest;
     }
 
