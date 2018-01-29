@@ -2,11 +2,13 @@ package falcon.io.assessment.message;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -15,12 +17,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@RunWith(SpringRunner.class)
 public class MessageServiceTest {
 
     private static final String ANY_ID = "1";
@@ -39,7 +41,7 @@ public class MessageServiceTest {
 
     @Before
     public void setUp() {
-        messageService = new MessageService(messageRepositoryMock);
+        messageService = new MessageService(messageRepositoryMock, clockMock);
         given(clockMock.instant()).willReturn(NOW);
     }
 
@@ -57,7 +59,7 @@ public class MessageServiceTest {
         messageService.save("");
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void shouldThrowExceptionWhenMessageIsNullOnSave() {
         messageService.save(null);
     }
@@ -68,8 +70,8 @@ public class MessageServiceTest {
         Message anyMessage = makeMessage(ANY_ID, ANY_CONTENT);
         given(messageRepositoryMock.findById(eq(ANY_ID))).willReturn(Optional.of(anyMessage));
 
-        Message expectedMessage = messageService.getById(ANY_ID);
-        assertMessage(expectedMessage, ANY_ID, ANY_CONTENT);
+        Optional<Message> expectedMessage = messageService.getById(ANY_ID);
+        assertMessage(expectedMessage.get(), ANY_ID, ANY_CONTENT);
     }
 
     @Test
@@ -122,7 +124,6 @@ public class MessageServiceTest {
     }
 
     private void assertMessageOfAnyId(Message message, String content) {
-        assertNotNull(message.getId());
         assertEquals(message.getContent(), content);
         assertEquals(message.getCreateTime(), NOW);
     }

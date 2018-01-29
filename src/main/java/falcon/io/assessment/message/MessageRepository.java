@@ -1,6 +1,6 @@
 package falcon.io.assessment.message;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface MessageRepository extends PagingAndSortingRepository<Message, String> {
+public interface MessageRepository extends MongoRepository<Message, String> {
 }
