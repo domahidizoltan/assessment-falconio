@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+
+    mongo-db:
+      image: mvertes/alpine-mongo:3.6.1-1
+      container_name: mongo-db
+      restart: always
+      ports:
+        - 27017:27017
+
+    mongo-admin:
+      image: mrvautin/adminmongo
+      container_name: mongo-admin
+      restart: always
+      ports:
+        - 1234:1234
+      depends_on:
+        - mongo-db
