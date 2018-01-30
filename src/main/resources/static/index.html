@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap-4.0.0.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/scripts.js"></script>
+    <title>Falcon.io assessment</title>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <h1>List of messages</h1>
+            <div id="messages"></div>
+        </div>
+        <div class="col-sm">
+            <h1>Submit new message</h1>
+            <div class="form-group">
+                <textarea id="new-message" placeholder="Type your JSON input..." class="form-control"></textarea>
+                <br/>
+                <button type="button" class="btn-lg btn-primary mb-2" onclick="submitMessage()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

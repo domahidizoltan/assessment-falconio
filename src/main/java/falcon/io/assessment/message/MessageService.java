@@ -22,12 +22,8 @@ public class MessageService {
     }
 
     public Message save(String content) {
-        Assert.hasLength(content, "Message content must not be null or empty!");
-        try {
-            objectMapper.readTree(content);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Message must have valid Json!");
-        }
+        content = sanitize(content);
+        validate(content);
 
         Message message = toMessage(content);
         return messageRepository.save(message);
@@ -43,4 +39,21 @@ public class MessageService {
             .createTime(clock.instant())
             .build();
     }
+
+    private String sanitize(String content) {
+        if (content != null) {
+            content = content.trim();
+        }
+        return content;
+    }
+
+    private void validate(String content) {
+        Assert.hasLength(content, "Message content must not be null or empty!");
+        try {
+            objectMapper.readTree(content);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Message must be valid Json!");
+        }
+    }
+
 }

@@ -1,0 +1,31 @@
+.form-group textarea {
+    height:400px
+}
+
+.form-group button {
+    cursor: pointer
+}
+
+.messages .message {
+    float:left;
+}
+
+.message .id {
+    width: 50%;
+    float: left;
+    font-size: 0.7em;
+}
+
+.message .createTime {
+    width: 50%;
+    float: right;
+    text-align: right;
+    font-size: 0.7em;
+}
+
+.message .content {
+    width: 100%;
+    float: left;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
