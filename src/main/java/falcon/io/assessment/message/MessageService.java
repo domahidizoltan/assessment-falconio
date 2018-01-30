@@ -1,6 +1,7 @@
 package falcon.io.assessment.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import falcon.io.assessment.messaging.NotificationComposite;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -12,21 +13,26 @@ import java.util.List;
 public class MessageService {
 
     private MessageRepository messageRepository;
+    private NotificationComposite notifications;
     private Clock clock;
     private ObjectMapper objectMapper;
 
-    public MessageService(MessageRepository messageRepository, Clock clock, ObjectMapper objectMapper) {
+    public MessageService(MessageRepository messageRepository, NotificationComposite notifications, Clock clock, ObjectMapper objectMapper) {
         this.messageRepository = messageRepository;
+        this.notifications = notifications;
         this.clock = clock;
         this.objectMapper = objectMapper;
     }
 
     public Message save(String content) {
+        log.debug("saving message with content: " + content);
         content = sanitize(content);
         validate(content);
 
         Message message = toMessage(content);
-        return messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+        notifications.send(savedMessage);
+        return savedMessage;
     }
 
     public List<Message> getAllMessage() {

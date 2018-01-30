@@ -1,6 +1,7 @@
 package falcon.io.assessment.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import falcon.io.assessment.messaging.NotificationComposite;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,12 +16,17 @@ import static falcon.io.assessment.helper.MessageHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(SpringRunner.class)
 public class MessageServiceTest {
 
     @Mock
     private MessageRepository messageRepositoryMock;
+
+    @Mock
+    private NotificationComposite notificationsMock;
 
     @Mock
     private Clock clockMock;
@@ -31,7 +37,7 @@ public class MessageServiceTest {
 
     @Before
     public void setUp() {
-        messageService = new MessageService(messageRepositoryMock, clockMock, objectMapper);
+        messageService = new MessageService(messageRepositoryMock, notificationsMock, clockMock, objectMapper);
         given(clockMock.instant()).willReturn(NOW);
     }
 
@@ -43,6 +49,7 @@ public class MessageServiceTest {
 
         Message expectedMessage = messageService.save(ANY_CONTENT);
 
+        verify(notificationsMock, times(1)).send(eq(expectedMessage));
         assertMessage(expectedMessage, ANY_ID, ANY_CONTENT);
     }
 
