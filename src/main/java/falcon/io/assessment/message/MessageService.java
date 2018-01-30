@@ -1,39 +1,40 @@
 package falcon.io.assessment.message;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
-import java.util.Optional;
 
+@Slf4j
 public class MessageService {
 
     private MessageRepository messageRepository;
     private Clock clock;
+    private ObjectMapper objectMapper;
 
-    public MessageService(MessageRepository messageRepository, Clock clock) {
+    public MessageService(MessageRepository messageRepository, Clock clock, ObjectMapper objectMapper) {
         this.messageRepository = messageRepository;
         this.clock = clock;
+        this.objectMapper = objectMapper;
     }
 
     public Message save(String content) {
         Assert.hasLength(content, "Message content must not be null or empty!");
+        try {
+            objectMapper.readTree(content);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Message must have valid Json!");
+        }
+
         Message message = toMessage(content);
         return messageRepository.save(message);
     }
 
-    public Optional<Message> getById(String id) {
-        return messageRepository.findById(id);
-    }
-
-    public List<Message> getAll() {
+    public List<Message> getAllMessage() {
         return messageRepository.findAll();
-    }
-
-    public Page<Message> getPage(Pageable pageable) {
-        return messageRepository.findAll(pageable);
     }
 
     private Message toMessage(String content) {
