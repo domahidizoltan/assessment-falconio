@@ -9,7 +9,7 @@ function loadMessages() {
 
     $("#new-message").focus();
 
-    var socket = new SockJS('http://localhost:8080/falcon-websocket');
+    var socket = new SockJS(host + '/falcon-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, connectWSCallback, errorWSCallback);
 }

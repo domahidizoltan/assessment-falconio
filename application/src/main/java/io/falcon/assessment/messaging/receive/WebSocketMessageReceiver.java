@@ -17,7 +17,7 @@ public class WebSocketMessageReceiver {
     }
 
     @MessageMapping("/save-message")
-    public void onMessage(String content) {
+    public void onMessage(final String content) {
         try {
             messageService.save(content);
         } catch (RuntimeException ex) {

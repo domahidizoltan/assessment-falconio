@@ -15,7 +15,7 @@ public class WebSockerNotificationSender implements NotificationSender {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public Message notify(Message message) {
+    public Message notify(final Message message) {
         log.debug("sending message on websocket: " + message);
         messagingTemplate.convertAndSend("/topic/messages", message);
         return message;

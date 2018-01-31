@@ -24,13 +24,13 @@ public class MessageService {
         this.objectMapper = objectMapper;
     }
 
-    public Message save(String content) throws IllegalArgumentException {
+    public Message save(final String content) throws IllegalArgumentException {
         log.debug("saving message with content: " + content);
-        content = sanitize(content);
-        validate(content);
+        final String trimmedContent = sanitize(content);
+        validate(trimmedContent);
 
-        Message message = toMessage(content);
-        Message savedMessage = messageRepository.save(message);
+        final Message message = toMessage(trimmedContent);
+        final Message savedMessage = messageRepository.save(message);
         notifications.send(savedMessage);
         return savedMessage;
     }
@@ -39,7 +39,7 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
-    private Message toMessage(String content) {
+    private Message toMessage(final String content) {
         return Message.builder()
             .content(content)
             .createTime(clock.instant())
@@ -53,7 +53,7 @@ public class MessageService {
         return content;
     }
 
-    private void validate(String content) {
+    private void validate(final String content) {
         Assert.hasLength(content, "Message content must not be null or empty!");
         try {
             objectMapper.readTree(content);

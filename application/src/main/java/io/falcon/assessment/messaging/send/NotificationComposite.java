@@ -6,13 +6,13 @@ import java.util.List;
 
 public class NotificationComposite {
 
-    private List<NotificationSender> notificationSenders;
+    private final List<NotificationSender> notificationSenders;
 
-    public NotificationComposite(List<NotificationSender> notificationSenders) {
+    public NotificationComposite(final List<NotificationSender> notificationSenders) {
         this.notificationSenders = notificationSenders;
     }
 
-    public void send(Message message) {
+    public void send(final Message message) {
         notificationSenders.forEach(sender -> sender.notify(message));
     }
 
