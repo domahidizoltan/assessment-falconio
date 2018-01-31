@@ -27,23 +27,21 @@ function submitMessage() {
     var textarea = $("#new-message");
     var message = textarea.val();
     console.log("saving message: " + message);
-    $.ajax(host + "/messages/", {
-        type: "POST",
-        dataType: 'json',
-        data: message,
-        contentType: 'application/json',
-        timeout: 3000,
-        success: function() { textarea.val(""); },
-        error: function(request, status, errorThrown) { alert($.parseJSON(request.responseText).error); }
-    });
+    stompClient.send("/app/save-message", {}, message);
 }
 
 function connectWSCallback(frame) {
     console.log('Connected: ' + frame);
+
     stompClient.subscribe('/topic/messages', function(data) {
         var message = JSON.parse(data.body);
         addMessageToList(message);
     });
+
+    stompClient.subscribe('/topic/errors', function(data) {
+        alert("Could not save data: " + data.body);
+    });
+
 }
 
 function errorWSCallback(error) {

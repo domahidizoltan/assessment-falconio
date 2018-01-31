@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.falcon.assessment.message.MessageRepository;
 import io.falcon.assessment.message.MessageService;
-import io.falcon.assessment.messaging.NotificationComposite;
-import io.falcon.assessment.messaging.NotificationSender;
+import io.falcon.assessment.messaging.send.NotificationComposite;
+import io.falcon.assessment.messaging.send.NotificationSender;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

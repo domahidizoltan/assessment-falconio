@@ -1,4 +1,4 @@
-package io.falcon.assessment.messaging;
+package io.falcon.assessment.messaging.send;
 
 import io.falcon.assessment.helper.MessageHelper;
 import org.junit.Before;

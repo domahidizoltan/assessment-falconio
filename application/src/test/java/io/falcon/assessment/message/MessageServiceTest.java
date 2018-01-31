@@ -1,7 +1,7 @@
 package io.falcon.assessment.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.falcon.assessment.messaging.NotificationComposite;
+import io.falcon.assessment.messaging.send.NotificationComposite;
 import io.falcon.assessment.helper.MessageHelper;
 import org.junit.Assert;
 import org.junit.Before;

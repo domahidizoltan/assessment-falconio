@@ -1,7 +1,7 @@
 package io.falcon.assessment.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.falcon.assessment.messaging.NotificationComposite;
+import io.falcon.assessment.messaging.send.NotificationComposite;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -24,7 +24,7 @@ public class MessageService {
         this.objectMapper = objectMapper;
     }
 
-    public Message save(String content) {
+    public Message save(String content) throws IllegalArgumentException {
         log.debug("saving message with content: " + content);
         content = sanitize(content);
         validate(content);

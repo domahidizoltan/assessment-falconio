@@ -1,4 +1,4 @@
-package io.falcon.assessment.messaging;
+package io.falcon.assessment.messaging.send;
 
 import io.falcon.assessment.message.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +11,8 @@ public class WebSockerNotificationSender implements NotificationSender {
 
     private SimpMessagingTemplate messagingTemplate;
 
-    public WebSockerNotificationSender(SimpMessagingTemplate template) {
-        this.messagingTemplate = template;
+    public WebSockerNotificationSender(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
     }
 
     public Message notify(Message message) {
