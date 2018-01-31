@@ -2,6 +2,7 @@ package io.falcon.assessment.controller;
 
 import io.falcon.assessment.message.Message;
 import io.falcon.assessment.message.MessageService;
+import io.falcon.assessment.messagepool.MessagePublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,11 @@ import java.util.List;
 public class MessageController {
 
     private MessageService messageService;
+    private MessagePublisher messagePublisher;
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, MessagePublisher messagePublisher) {
         this.messageService = messageService;
+        this.messagePublisher = messagePublisher;
     }
 
     @GetMapping("/")
@@ -24,7 +27,7 @@ public class MessageController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public Message saveMessage(@RequestBody String content) {
-        return messageService.save(content);
+    public void saveMessage(@RequestBody String content) throws Exception {
+        messagePublisher.publish(content);
     }
 }

@@ -1,4 +1,8 @@
+app:
+  config:
+    thread-pool-size: 10
+
 logging:
   level:
     io:
-      falcon: debug
+      falcon: trace

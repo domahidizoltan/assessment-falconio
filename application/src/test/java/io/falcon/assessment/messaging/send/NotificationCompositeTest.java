@@ -1,6 +1,5 @@
 package io.falcon.assessment.messaging.send;
 
-import io.falcon.assessment.helper.MessageHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +9,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.falcon.assessment.helper.MessageHelper.ANY_MESSAGE;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,10 +33,10 @@ public class NotificationCompositeTest {
 
     @Test
     public void shouldSendNotifiations() {
-        notificationComposite.send(MessageHelper.ANY_MESSAGE);
+        notificationComposite.send(ANY_MESSAGE);
 
-        verify(firstNotificationSenderMock, times(1)).notify(eq(MessageHelper.ANY_MESSAGE));
-        verify(secondNotificationSenderMock, times(1)).notify(eq(MessageHelper.ANY_MESSAGE));
+        verify(firstNotificationSenderMock, times(1)).notify(eq(ANY_MESSAGE));
+        verify(secondNotificationSenderMock, times(1)).notify(eq(ANY_MESSAGE));
     }
 
 }

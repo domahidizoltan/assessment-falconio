@@ -2,7 +2,7 @@ package io.falcon.assessment.controller;
 
 import io.falcon.assessment.message.Message;
 import io.falcon.assessment.message.MessageService;
-import io.falcon.assessment.helper.MessageHelper;
+import io.falcon.assessment.messagepool.MessagePublisher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,15 +13,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
 
+import static io.falcon.assessment.helper.MessageHelper.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,26 +42,27 @@ public class MessageControllerITest {
     @MockBean
     private MessageService messageServiceMock;
 
+    @MockBean
+    private MessagePublisher messagePublisherMock;
+
     @Test
     public void shouldSaveMessage() throws Exception {
-        Message savedMessage = MessageHelper.makeMessage(MessageHelper.ANY_ID, MessageHelper.ANY_CONTENT);
-        given(messageServiceMock.save(eq(MessageHelper.ANY_CONTENT))).willReturn(savedMessage);
+        Message savedMessage = makeMessage(ANY_ID, ANY_CONTENT);
         RequestBuilder postRequest = post(MESSAGES_URL)
-            .content(MessageHelper.ANY_CONTENT)
+            .content(ANY_CONTENT)
             .contentType(MediaType.APPLICATION_JSON);
 
         mvc.perform(postRequest)
-            .andExpect(status().isCreated())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(MessageHelper.ANY_ID)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content", Matchers.is(MessageHelper.ANY_CONTENT)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.createTime", Matchers.is(MessageHelper.NOW.toString())));
+            .andExpect(status().isCreated());
+
+        verify(messagePublisherMock, times(1)).publish(eq(ANY_CONTENT));
     }
 
     @Test
     public void shouldReturnBadRequestOnInvalidContent() throws Exception {
         String errorMessage = "Invalid input";
-        given(messageServiceMock.save(anyString()))
-            .willThrow(new IllegalArgumentException(errorMessage));
+        willThrow(new IllegalArgumentException(errorMessage))
+            .given(messagePublisherMock).publish(anyString());
         RequestBuilder invalidPostRequest = post(MESSAGES_URL)
             .content("invalidJson")
             .contentType(MediaType.APPLICATION_JSON);
@@ -70,8 +74,8 @@ public class MessageControllerITest {
 
     @Test
     public void shouldReturnAllMessages() throws Exception {
-        Message firstMessage = MessageHelper.makeMessage("1", MessageHelper.ANY_CONTENT);
-        Message secondMessage = MessageHelper.makeMessage("2", MessageHelper.ANY_CONTENT);
+        Message firstMessage = makeMessage("1", ANY_CONTENT);
+        Message secondMessage = makeMessage("2", ANY_CONTENT);
         given(messageServiceMock.getAllMessage())
             .willReturn(Arrays.asList(firstMessage, secondMessage));
 
@@ -80,11 +84,11 @@ public class MessageControllerITest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))
             .andExpect(jsonPath("$[0].id", is("1")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].content", Matchers.is(MessageHelper.ANY_CONTENT)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].createTime", Matchers.is(MessageHelper.NOW.toString())))
+            .andExpect(jsonPath("$[0].content", Matchers.is(ANY_CONTENT)))
+            .andExpect(jsonPath("$[0].createTime", Matchers.is(NOW.toString())))
             .andExpect(jsonPath("$[1].id", is("2")))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].content", Matchers.is(MessageHelper.ANY_CONTENT)))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].createTime", Matchers.is(MessageHelper.NOW.toString())));
+            .andExpect(jsonPath("$[1].content", Matchers.is(ANY_CONTENT)))
+            .andExpect(jsonPath("$[1].createTime", Matchers.is(NOW.toString())));
     }
 
 }

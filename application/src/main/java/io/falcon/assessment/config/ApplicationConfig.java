@@ -9,6 +9,7 @@ import io.falcon.assessment.messaging.send.NotificationComposite;
 import io.falcon.assessment.messaging.send.NotificationSender;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import java.time.Clock;
 import java.util.List;
@@ -38,9 +39,9 @@ public class ApplicationConfig {
     }
 
     @Bean
+    @Scope("prototype")
     public MessageService messageService(MessageRepository messageRepository, NotificationComposite notifications, Clock clock, ObjectMapper customObjectMapper) {
         return new MessageService(messageRepository, notifications, clock, customObjectMapper);
     }
-
 
 }

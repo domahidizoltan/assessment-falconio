@@ -2,7 +2,6 @@ package io.falcon.assessment.message;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.falcon.assessment.messaging.send.NotificationComposite;
-import io.falcon.assessment.helper.MessageHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +13,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.falcon.assessment.helper.MessageHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -39,19 +39,19 @@ public class MessageServiceTest {
     @Before
     public void setUp() {
         messageService = new MessageService(messageRepositoryMock, notificationsMock, clockMock, objectMapper);
-        given(clockMock.instant()).willReturn(MessageHelper.NOW);
+        given(clockMock.instant()).willReturn(NOW);
     }
 
     @Test
     public void shouldSaveMessageWithCurrentTime() {
-        Message newMessage = MessageHelper.makeMessage(null, MessageHelper.ANY_CONTENT);
-        Message savedMessage = MessageHelper.makeMessage(MessageHelper.ANY_ID, MessageHelper.ANY_CONTENT);
+        Message newMessage = makeMessage(null, ANY_CONTENT);
+        Message savedMessage = makeMessage(ANY_ID, ANY_CONTENT);
         given(messageRepositoryMock.save(eq(newMessage))).willReturn(savedMessage);
 
-        Message expectedMessage = messageService.save(MessageHelper.ANY_CONTENT);
+        Message expectedMessage = messageService.save(ANY_CONTENT);
 
         verify(notificationsMock, times(1)).send(eq(expectedMessage));
-        assertMessage(expectedMessage, MessageHelper.ANY_ID, MessageHelper.ANY_CONTENT);
+        assertMessage(expectedMessage, ANY_ID, ANY_CONTENT);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -71,23 +71,23 @@ public class MessageServiceTest {
 
     @Test
     public void shouldGetAllMessages() {
-        Message firstMessage = MessageHelper.makeMessage("1", MessageHelper.ANY_CONTENT);
-        Message secondMessage = MessageHelper.makeMessage("2", MessageHelper.ANY_CONTENT);
-        Message thirdMessage = MessageHelper.makeMessage("3", MessageHelper.ANY_CONTENT);
+        Message firstMessage = makeMessage("1", ANY_CONTENT);
+        Message secondMessage = makeMessage("2", ANY_CONTENT);
+        Message thirdMessage = makeMessage("3", ANY_CONTENT);
         given(messageRepositoryMock.findAll()).willReturn(Arrays.asList(firstMessage, secondMessage, thirdMessage));
 
         List<Message> expectedMessages = messageService.getAllMessage();
 
         assertEquals(expectedMessages.size(), 3);
-        assertMessage(expectedMessages.get(0), "1", MessageHelper.ANY_CONTENT);
-        assertMessage(expectedMessages.get(1), "2", MessageHelper.ANY_CONTENT);
-        assertMessage(expectedMessages.get(2), "3", MessageHelper.ANY_CONTENT);
+        assertMessage(expectedMessages.get(0), "1", ANY_CONTENT);
+        assertMessage(expectedMessages.get(1), "2", ANY_CONTENT);
+        assertMessage(expectedMessages.get(2), "3", ANY_CONTENT);
     }
 
     private void assertMessage(Message message, String id, String content) {
         assertEquals(message.getId(), id);
         assertEquals(message.getContent(), content);
-        Assert.assertEquals(message.getCreateTime(), MessageHelper.NOW);
+        Assert.assertEquals(message.getCreateTime(), NOW);
     }
 
 }
