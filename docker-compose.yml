@@ -17,3 +17,23 @@ services:
         - 1234:1234
       depends_on:
         - mongo-db
+
+    app:
+      image: falconio-assessment
+      container_name: app
+      restart: always
+      ports:
+        - 8011:8011
+      environment:
+        - SERVER_PORT=8011
+        - SPRING_DATA_MONGODB_HOST=mongo-db
+
+    nginx:
+      image: nginx:1.13.8-alpine-perl
+      container_name: nginx
+      restart: always
+      ports:
+        - 8080:8080
+      volumes:
+        - /home/zoli/drive/work/code/interview/falconio_assessment/nginx.conf:/etc/nginx/nginx.conf:ro
+      command: [nginx-debug, '-g', 'daemon off;']
