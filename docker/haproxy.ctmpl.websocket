@@ -1,0 +1,41 @@
+global
+    log 127.0.0.1   local0
+    log 127.0.0.1   local1 notice
+    debug
+    stats timeout 10s
+    maxconn 1024
+
+defaults
+    log global
+    option httplog
+    option dontlognull
+    option redispatch
+    option forwardfor
+    option contstats
+    mode http
+    timeout connect 5s
+    timeout queue 5s
+    timeout client  50s
+    timeout server  50s
+
+frontend http-in
+    bind *:8080
+    acl is_websocket hdr(Upgrade) -i WebSocket
+    acl is_websocket hdr_beg(Host) -i ws
+    {{range $i,$a:=services}}{{range .Tags}}{{if eq . "bootApp"}}
+    use_backend srvs_app{{$i}} if is_websocket{{end}}{{end}}{{end}}
+
+{{range $i,$a:=services}}{{$path:=.Name}}{{range .Tags}}{{if eq . "bootApp"}}
+backend srvs_app{{$i}}
+    mode http
+    balance roundrobin
+    option forwardfor
+    {{range $c,$d:=service $a.Name}}
+    server host{{$c}} {{.Address}}:8080 weight 1 maxconn 1024 check{{end}}{{end}}{{end}}{{end}}
+
+listen stats
+    bind *:1936
+    stats enable
+    stats uri /
+    stats hide-version
+    stats auth someuser:password

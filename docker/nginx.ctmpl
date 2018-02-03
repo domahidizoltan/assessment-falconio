@@ -5,9 +5,12 @@ events {
 http {
     access_log /dev/stdout;
 
-    upstream myapp {
-        server app1:8010;
-        server app2:8020;
+    upstream myapp { {{$hasServer := "false"}}
+        {{range $i,$a:=services}}{{$path:=.Name}}{{range .Tags}}{{if eq . "bootApp"}}
+            {{range $c,$d:=service $a.Name}}{{$hasServer := "true"}}
+                server {{.Address}}:8080;{{end}}
+        {{end}}{{end}}{{end}}
+        {{if eq $hasServer "false"}} server 127.0.0.1:65535; {{end}}
     }
 
     map $http_upgrade $connection_upgrade {
