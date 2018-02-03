@@ -17,7 +17,7 @@ public class MessageConsumer implements Runnable {
     }
 
     public void run() {
-        while (true) {
+        while (!queue.isEmpty()) {
             try {
                 waitForMessage(queue);
                 saveMessage(queue);
@@ -25,6 +25,8 @@ public class MessageConsumer implements Runnable {
                 log.error("Thread {} was interrupted", Thread.currentThread().getName());
             }
         }
+
+        log.debug("exiting consumer");
     }
 
     private void waitForMessage(final ConcurrentLinkedQueue<String> queue) throws InterruptedException {
