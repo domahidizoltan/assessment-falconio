@@ -3,7 +3,6 @@ package io.falcon.assessment.controller;
 import io.falcon.assessment.message.Message;
 import io.falcon.assessment.message.MessageService;
 import io.falcon.assessment.messagepool.MessagePublisher;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,22 +73,39 @@ public class MessageControllerITest {
     }
 
     @Test
-    public void shouldReturnAllMessages() throws Exception {
+    public void shouldReturnLatestMessagesWhenNoParametersSpecified() throws Exception {
         Message firstMessage = makeMessage("1", ANY_CONTENT);
         Message secondMessage = makeMessage("2", ANY_CONTENT);
-        given(messageServiceMock.getAllMessage())
+        given(messageServiceMock.getMessagesBeforeCreateTime(null, 20))
             .willReturn(Arrays.asList(firstMessage, secondMessage));
 
-        RequestBuilder getAllRequest = get(MESSAGES_URL);
-        mvc.perform(getAllRequest)
+        RequestBuilder getRequest = get(MESSAGES_URL);
+        mvc.perform(getRequest)
+            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(2)))
             .andExpect(jsonPath("$[0].id", is("1")))
-            .andExpect(jsonPath("$[0].content", Matchers.is(ANY_CONTENT)))
-            .andExpect(jsonPath("$[0].createTime", Matchers.is(NOW.toString())))
+            .andExpect(jsonPath("$[0].content", is(ANY_CONTENT)))
+            .andExpect(jsonPath("$[0].createTime", is(NOW.toString())))
             .andExpect(jsonPath("$[1].id", is("2")))
-            .andExpect(jsonPath("$[1].content", Matchers.is(ANY_CONTENT)))
-            .andExpect(jsonPath("$[1].createTime", Matchers.is(NOW.toString())));
+            .andExpect(jsonPath("$[1].content", is(ANY_CONTENT)))
+            .andExpect(jsonPath("$[1].createTime", is(NOW.toString())));
+    }
+
+    @Test
+    public void shouldReturnMessagesFromGivenTimeWithLimit() throws Exception {
+        Message firstMessage = makeMessage("1", ANY_CONTENT);
+        given(messageServiceMock.getMessagesBeforeCreateTime(NOW, 1))
+            .willReturn(Arrays.asList(firstMessage));
+
+        RequestBuilder getRequest = get(MESSAGES_URL + "?createTime={createTime}&limit=1", NOW.toString());
+        mvc.perform(getRequest)
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].id", is("1")))
+            .andExpect(jsonPath("$[0].content", is(ANY_CONTENT)))
+            .andExpect(jsonPath("$[0].createTime", is(NOW.toString())));
     }
 
 }

@@ -15,12 +15,14 @@ import java.time.Instant;
 @NoArgsConstructor
 public class Message {
 
+    public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
     @Id
     private String id;
 
     private String content;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
+    @JsonFormat(pattern = DATETIME_FORMAT, timezone = "UTC")
     private Instant createTime;
 
 }

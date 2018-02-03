@@ -3,16 +3,19 @@ package io.falcon.assessment.message;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.falcon.assessment.messaging.send.NotificationComposite;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
 public class MessageService {
-
     private MessageRepository messageRepository;
+
     private NotificationComposite notifications;
     private Clock clock;
     private ObjectMapper objectMapper;
@@ -35,8 +38,14 @@ public class MessageService {
         return savedMessage;
     }
 
-    public List<Message> getAllMessage() {
-        return messageRepository.findAll();
+    public List<Message> getMessagesBeforeCreateTime(Instant createTime, Integer limit) {
+        if (createTime == null) {
+            createTime = Instant.now(clock);
+        }
+
+        Sort sort = Sort.by(Sort.Direction.DESC, "createTime");
+        PageRequest pageable = PageRequest.of(0, limit, sort);
+        return messageRepository.findByCreateTimeBefore(createTime, pageable);
     }
 
     private Message toMessage(final String content) {
@@ -61,5 +70,4 @@ public class MessageService {
             throw new IllegalArgumentException("Message must be valid Json!");
         }
     }
-
 }

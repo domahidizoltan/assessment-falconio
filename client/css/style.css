@@ -1,9 +1,9 @@
-.form-group textarea {
-    height:300px
+button {
+    cursor: pointer
 }
 
-.form-group button {
-    cursor: pointer
+.form-group textarea {
+    height:300px
 }
 
 .messages .message {

@@ -1,26 +1,36 @@
 var host = "http://localhost:8080"
 var stompClient;
+var beforeCreateTime = "";
 
-function loadMessages() {
-    console.log("loading messages...");
-    $.get(host + "/messages/", function(data) {
-        data.forEach(addMessageToList)
-    });
-
-    $("#new-message").focus();
-
+function initWSConnection() {
     var socket = new SockJS(host + '/falcon-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, connectWSCallback, errorWSCallback);
 }
 
-function addMessageToList(message) {
+function loadMessages() {
+    console.log("loading messages...");
+    $.get(host + "/messages/?limit=3&createTime=" + beforeCreateTime, function(data) {
+        var btnText = data.length != 0 ? "get more" : "no more";
+        $("#getMoreBtn").text(btnText);
+
+        data.forEach(addMessageToList);
+    });
+}
+
+function addMessageToList(message, prepend) {
     var block = "<div class='message'>" +
                     "<div class='id'>" + message.id + "</div>" +
                     "<div class='createTime'>" + message.createTime + "</div>" +
                     "<div class='content'><pre>" + message.content + "</pre></div>" +
                  "</div>";
-    $('#messages').prepend(block);
+
+    if (prepend !== "prepend") {
+        beforeCreateTime = message.createTime;
+        $('#messages').append(block);
+    } else {
+        $('#messages').prepend(block);
+    }
 }
 
 function submitMessage() {
@@ -35,7 +45,7 @@ function connectWSCallback(frame) {
 
     stompClient.subscribe('/topic/messages', function(data) {
         var message = JSON.parse(data.body);
-        addMessageToList(message);
+        addMessageToList(message, "prepend");
     });
 
     stompClient.subscribe('/topic/errors', function(data) {
@@ -56,5 +66,14 @@ function disconnectWS() {
     console.log("Disconnected");
 }
 
-$(document).ready(loadMessages);
-$(window).on('beforeunload', disconnectWS)
+function scrollToPlace(place) {
+    var toPlace = place == "bottom" ? $(document).height() : 0;
+    $("html, body").animate({ scrollTop: toPlace }, "slow");
+}
+
+$(document).ready(function (){
+    initWSConnection();
+    loadMessages();
+    $("#new-message").focus();
+});
+$(window).on('beforeunload', disconnectWS);
